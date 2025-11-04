@@ -42,7 +42,7 @@ define('APP_DB_HOSTNAME_DEFAULT', 'localhost');
 /**
  * The username used to connect to the database
  */
-define('APP_DB_USERNAME_DEFAULT', 'citrus');
+define('APP_DB_USERNAME_DEFAULT', 'fillao_citrus');
 /**
  * The password used to connect to the database
  */
