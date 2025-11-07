@@ -30,8 +30,6 @@ $customFields[1] = "company";
 $is_single_package = perfex_saas_is_single_package_mode();
 $package_id_col = perfex_saas_column('packageid');
 
-$need_action = [];
-
 foreach ($rResult as $aRow) {
 
     $row = [];
@@ -43,7 +41,6 @@ foreach ($rResult as $aRow) {
         $packageLink = $is_single_package ? admin_url(PERFEX_SAAS_ROUTE_NAME . '/pricing') : admin_url(PERFEX_SAAS_ROUTE_NAME . '/packages/edit/' . $invoice->{$package_id_col});
     $viewLink = perfex_saas_tenant_admin_url((object)$aRow);
     $editLink = admin_url(PERFEX_SAAS_ROUTE_NAME . '/companies/edit/' . $aRow['id']);
-    $notice = '';
 
     for ($i = 0; $i < count($customFields); $i++) {
         $_data = $aRow[$customFields[$i]];
@@ -79,7 +76,6 @@ foreach ($rResult as $aRow) {
                 $_data = '-';
             }
         } elseif ($customFields[$i] == 'metadata') {
-
             $disabled_modules = implode(', ', array_merge($_data->disabled_modules ?? [], $_data->admin_disabled_modules ?? []));
             $admin_approved_modules = implode(', ', $_data->admin_approved_modules ?? []);
             $_data = [];
@@ -95,8 +91,14 @@ foreach ($rResult as $aRow) {
         $row[] = $_data;
     }
 
-    $options = '<div class="tw-flex tw-items-center tw-space-x-3">';
+    // ✅ Add Auto Invoice WhatsApp column before actions
+    $autoInvoiceStatus = isset($aRow['metadata']->auto_invoice_whatsapp) && $aRow['metadata']->auto_invoice_whatsapp == '1'
+        ? '<span class="badge tw-bg-green-200">ON</span>'
+        : '<span class="badge tw-bg-gray-300">OFF</span>';
+    $row[] = $autoInvoiceStatus;
 
+    // ✅ Actions buttons restored
+    $options = '<div class="tw-flex tw-items-center tw-space-x-3">';
     $notice = empty($aRow['metadata']->pending_custom_domain) ? "" : "<span data-toggle='tooltip' data-title='" . strip_tags(_l("perfex_saas_pending_domain_request", [$aRow['name'], $aRow['metadata']->pending_custom_domain])) . "'><i class='fa fa-warning text-danger'></i></span>";
     $options .= '<a href="' . $editLink . '" target="_blank" class="tw-text-neutral-500 hover:tw-text-neutral-700 focus:tw-text-neutral-700">' . $notice . '
         <i class="fa fa-eye fa-lg"></i>
@@ -121,8 +123,6 @@ foreach ($rResult as $aRow) {
     $row[] = $options;
 
     $row['DT_RowClass'] = 'has-row-options';
-    if (empty($notice))
-        $output['aaData'][] = $row;
-    else
-        array_unshift($output['aaData'], $row);
+    $output['aaData'][] = $row;
 }
+

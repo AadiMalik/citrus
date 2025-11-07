@@ -77,6 +77,12 @@ $hook['pre_controller_constructor'][] = [
     'filename' => 'InitHook.php',
     'filepath' => 'hooks',
 ];
+$hook['pre_system'][] = array(
+    'class'    => '',
+    'function' => 'load_whatsapp_helper',
+    'filename' => 'load_whatsapp_helper.php',
+    'filepath' => 'hooks',
+);
 
 $hook['post_controller'] = function () {
     $ci = get_instance();

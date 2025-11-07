@@ -22,6 +22,7 @@
                             _l('perfex_saas_data_location'),
                             _l('perfex_saas_modules'),
                             _l('perfex_saas_date_created'),
+                            'Auto Invoice WhatsApp',
                             _l('perfex_saas_options'),
                         ], 'companies'); ?>
                     </div>

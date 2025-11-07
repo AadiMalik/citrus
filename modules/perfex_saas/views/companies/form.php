@@ -39,8 +39,8 @@
                                 class="control-label"><?php echo _l('perfex_saas_invoice_select_customer'); ?></label>
                             <select id="clientid" name="clientid" data-live-search="true" data-width="100%"
                                 class="ajax-search<?php if (isset($company) && empty($company->clientid)) {
-                                                                                                                                    echo ' customer-removed';
-                                                                                                                                } ?>"
+                                                        echo ' customer-removed';
+                                                    } ?>"
                                 data-none-selected-text="<?php echo _l('dropdown_non_selected_tex'); ?>">
                                 <?php $selected = (isset($company) ? $company->clientid : '');
                                 if ($selected == '') {
@@ -80,28 +80,51 @@
                             <?php $label =  _l('perfex_saas_disabled_default_modules') . perfex_saas_form_label_hint('perfex_saas_disabled_default_modules_hint'); ?>
                             <?= perfex_saas_render_select('metadata[admin_disabled_default_modules][]', $default_modules, ['system_name', ['custom_name']], $label, $selected, $select_attr); ?>
                         </div>
+                        <!-- Auto Invoice Reminder Toggle -->
+                        <div class="tw-mt-8 tw-mb-8">
+                            <?php
+                            $label = 'Auto Invoice Reminder (WhatsApp)';
+                            $value = isset($company->metadata->auto_invoice_whatsapp) ? $company->metadata->auto_invoice_whatsapp : '0';
+                            ?>
+                            <div class="form-group">
+                                <label for="auto_invoice_whatsapp" class="control-label">
+                                    <?= $label; ?>
+                                </label>
+                                <div class="onoffswitch">
+                                    <!-- Hidden field ensures '0' is submitted when unchecked -->
+                                    <input type="hidden" name="metadata[auto_invoice_whatsapp]" value="0">
+                                    <input type="checkbox" id="auto_invoice_whatsapp" class="onoffswitch-checkbox"
+                                        name="metadata[auto_invoice_whatsapp]" value="1" <?= $value == '1' ? 'checked' : ''; ?>>
+                                    <label class="onoffswitch-label" for="auto_invoice_whatsapp"></label>
+                                </div>
+                                <small class="text-muted">
+                                    Enable or disable automatic WhatsApp invoice reminders for this company.
+                                </small>
+                            </div>
+                        </div>
+
 
                         <!-- status selection -->
                         <?php if (isset($company) && $company->status != PERFEX_SAAS_STATUS_PENDING) : ?>
-                        <div class="tw-mt-8 tw-mb-8">
-                            <?php $selected = (isset($company) ? $company->status : ''); ?>
-                            <?php $company_status_list = $this->perfex_saas_model->company_status_list(); ?>
-                            <?php echo render_select('status', $company_status_list, ['key', ['label']], 'perfex_saas_company_status', $selected, [], [], '', '', false); ?>
-                        </div>
+                            <div class="tw-mt-8 tw-mb-8">
+                                <?php $selected = (isset($company) ? $company->status : ''); ?>
+                                <?php $company_status_list = $this->perfex_saas_model->company_status_list(); ?>
+                                <?php echo render_select('status', $company_status_list, ['key', ['label']], 'perfex_saas_company_status', $selected, [], [], '', '', false); ?>
+                            </div>
                         <?php endif ?>
 
 
                         <?php if (!isset($company) || (empty($company->dsn) && !empty($company->status) && $company->status == PERFEX_SAAS_STATUS_PENDING)) : ?>
-                        <!-- DB scheme -->
-                        <?php $value = (isset($company->db_scheme) ? $company->db_scheme : (isset($company) && empty($company->dsn) ? 'shard' : '')); ?>
-                        <?php $db_schemes = $this->perfex_saas_model->db_schemes_alt(); ?>
-                        <?php echo render_select('db_scheme', $db_schemes, ['key', ['label']], 'perfex_saas_db_scheme', $value, [], [], '', '', false); ?>
+                            <!-- DB scheme -->
+                            <?php $value = (isset($company->db_scheme) ? $company->db_scheme : (isset($company) && empty($company->dsn) ? 'shard' : '')); ?>
+                            <?php $db_schemes = $this->perfex_saas_model->db_schemes_alt(); ?>
+                            <?php echo render_select('db_scheme', $db_schemes, ['key', ['label']], 'perfex_saas_db_scheme', $value, [], [], '', '', false); ?>
 
-                        <!-- DB pools -->
-                        <div
-                            class="form-group tw-mt-8 tw-mb-8 db_pools <?= in_array($value, ['shard', 'single_pool']) ? '' : 'hidden'; ?>">
-                            <?php require('partials/db_pool.php'); ?>
-                        </div>
+                            <!-- DB pools -->
+                            <div
+                                class="form-group tw-mt-8 tw-mb-8 db_pools <?= in_array($value, ['shard', 'single_pool']) ? '' : 'hidden'; ?>">
+                                <?php require('partials/db_pool.php'); ?>
+                            </div>
                         <?php endif ?>
 
 
@@ -115,23 +138,23 @@
                 </div>
             </div>
             <?php if (!empty($company)) : ?>
-            <div class="col-md-5">
-                <?= $this->load->view("companies/view", ['company' => $company]); ?>
-            </div>
+                <div class="col-md-5">
+                    <?= $this->load->view("companies/view", ['company' => $company]); ?>
+                </div>
             <?php endif; ?>
         </div>
     </div>
 </div>
 <?php init_tail(); ?>
 <script>
-"use strict";
+    "use strict";
 
-<?php if (isset($company)) : ?>
-const perfex_saas_company_id = "<?= $company->id ?>";
-<?php endif ?>
-$(document).ready(function() {
-    saasCompanyFormScript();
-});
+    <?php if (isset($company)) : ?>
+        const perfex_saas_company_id = "<?= $company->id ?>";
+    <?php endif ?>
+    $(document).ready(function() {
+        saasCompanyFormScript();
+    });
 </script>
 </body>
 
