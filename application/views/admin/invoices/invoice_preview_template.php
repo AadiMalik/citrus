@@ -1,4 +1,3 @@
-
 <?php defined('BASEPATH') or exit('No direct script access allowed'); ?>
 <?php if ((credits_can_be_applied_to_invoice($invoice->status) && $credits_available > 0)) { ?>
     <div class="alert alert-warning mbot5">
@@ -529,22 +528,28 @@
             e.preventDefault();
             var invoiceId = $(this).data('invoice-id');
 
-            // Determine slug from URL
+            // Get current slug from URL (first segment after base)
             var pathArray = window.location.pathname.split('/');
-            var slug = pathArray[1]; // e.g., 'jfswimming' or 'admin'
-            alert(slug);
-            var postUrl = slug && slug != 'admin' ? "/" + slug + "/invoices/send_invoice_whatsapp" : "/admin/invoices/send_invoice_whatsapp";
+            var slug = pathArray[1]; // e.g., 'jfswimming'
+            var postUrl = "/" + slug + "/invoices/send_invoice_whatsapp";
+
+            // CSRF token (CodeIgniter default)
+            var csrfName = '<?php echo $this->security->get_csrf_token_name(); ?>';
+            var csrfHash = '<?php echo $this->security->get_csrf_hash(); ?>';
 
             if (confirm("<?php echo 'Are you sure you want to send this invoice via WhatsApp?'; ?>")) {
-                $.post(postUrl, {
-                    '<?php echo $this->security->get_csrf_token_name(); ?>': '<?php echo $this->security->get_csrf_hash(); ?>',
+                var postData = {
                     invoice_id: invoiceId
-                }, function(response) {
+                };
+                postData[csrfName] = csrfHash;
+
+                $.post(postUrl, postData, function(response) {
                     alert(response.message || (response.success ? "Invoice sent successfully" : "Failed to send invoice"));
                 }, 'json');
             }
         });
     });
 </script>
+
 
 <?php hooks()->do_action('after_invoice_preview_template_rendered', $invoice); ?>
