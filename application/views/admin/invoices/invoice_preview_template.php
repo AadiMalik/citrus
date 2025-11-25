@@ -531,6 +531,7 @@
             // Determine slug from URL
             var pathArray = window.location.pathname.split('/');
             var slug = pathArray[1]; // e.g., 'jfswimming' or 'admin'
+            alert(slug);
             var postUrl = slug && slug != 'admin' ? "/" + slug + "/invoices/send_invoice_whatsapp" : "/admin/invoices/send_invoice_whatsapp";
 
             if (confirm("<?php echo 'Are you sure you want to send this invoice via WhatsApp?'; ?>")) {
