@@ -1,3 +1,4 @@
+
 <?php defined('BASEPATH') or exit('No direct script access allowed'); ?>
 <?php if ((credits_can_be_applied_to_invoice($invoice->status) && $credits_available > 0)) { ?>
     <div class="alert alert-warning mbot5">

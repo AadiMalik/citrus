@@ -1,0 +1,29 @@
+2025-11-20 02:37:13 - ...Whatsapp cronjob start....
+2025-11-20 02:38:49 - ...Whatsapp cronjob start....
+2025-11-20 02:38:49 - Table jf210_tbloptions does not exist for jf210
+2025-11-20 02:38:49 - Table jfswimming_tbloptions does not exist for jfswimming
+2025-11-20 02:38:49 - Cron completed successfully.
+2025-11-20 04:15:02 - ...Whatsapp cronjob start....
+2025-11-20 04:15:02 - Table jf210_tbloptions does not exist for jf210
+2025-11-20 04:15:02 - Table jfswimming_tbloptions does not exist for jfswimming
+2025-11-20 04:15:02 - Cron completed successfully.
+2025-11-21 04:15:01 - ...Whatsapp cronjob start....
+2025-11-21 04:15:01 - Table jf210_tbloptions does not exist for jf210
+2025-11-21 04:15:01 - Table jfswimming_tbloptions does not exist for jfswimming
+2025-11-21 04:15:01 - Cron completed successfully.
+2025-11-22 04:15:02 - ...Whatsapp cronjob start....
+2025-11-22 04:15:02 - Table jf210_tbloptions does not exist for jf210
+2025-11-22 04:15:02 - Table jfswimming_tbloptions does not exist for jfswimming
+2025-11-22 04:15:02 - Cron completed successfully.
+2025-11-23 04:15:01 - ...Whatsapp cronjob start....
+2025-11-23 04:15:02 - Table jf210_tbloptions does not exist for jf210
+2025-11-23 04:15:02 - Table jfswimming_tbloptions does not exist for jfswimming
+2025-11-23 04:15:02 - Cron completed successfully.
+2025-11-24 04:15:02 - ...Whatsapp cronjob start....
+2025-11-24 04:15:02 - Table jf210_tbloptions does not exist for jf210
+2025-11-24 04:15:02 - Table jfswimming_tbloptions does not exist for jfswimming
+2025-11-24 04:15:02 - Cron completed successfully.
+2025-11-25 04:15:02 - ...Whatsapp cronjob start....
+2025-11-25 04:15:02 - Table jf210_tbloptions does not exist for jf210
+2025-11-25 04:15:02 - Table jfswimming_tbloptions does not exist for jfswimming
+2025-11-25 04:15:02 - Cron completed successfully.
