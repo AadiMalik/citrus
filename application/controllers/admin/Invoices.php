@@ -9,6 +9,7 @@ class Invoices extends AdminController
         parent::__construct();
         $this->load->model('invoices_model');
         $this->load->model('credit_notes_model');
+        $this->load->database();
     }
 
     /* Get all invoices in case user go on index page */
@@ -20,9 +21,11 @@ class Invoices extends AdminController
     /* List all invoices datatables */
     public function list_invoices($id = '')
     {
-        if (staff_cant('view', 'invoices')
+        if (
+            staff_cant('view', 'invoices')
             && staff_cant('view_own', 'invoices')
-            && get_option('allow_staff_view_invoices_assigned') == '0') {
+            && get_option('allow_staff_view_invoices_assigned') == '0'
+        ) {
             access_denied('invoices');
         }
 
@@ -43,9 +46,11 @@ class Invoices extends AdminController
     /* List all recurring invoices */
     public function recurring($id = '')
     {
-        if (staff_cant('view', 'invoices')
+        if (
+            staff_cant('view', 'invoices')
             && staff_cant('view_own', 'invoices')
-            && get_option('allow_staff_view_invoices_assigned') == '0') {
+            && get_option('allow_staff_view_invoices_assigned') == '0'
+        ) {
             access_denied('invoices');
         }
 
@@ -60,16 +65,18 @@ class Invoices extends AdminController
 
     public function table($clientid = '')
     {
-        if (staff_cant('view', 'invoices')
+        if (
+            staff_cant('view', 'invoices')
             && staff_cant('view_own', 'invoices')
-            && get_option('allow_staff_view_invoices_assigned') == '0') {
+            && get_option('allow_staff_view_invoices_assigned') == '0'
+        ) {
             ajax_access_denied();
         }
-        
+
         $this->load->model('payment_modes_model');
         $data['payment_modes'] = $this->payment_modes_model->get('', [], true);
 
-        if($this->input->get('recurring')) {
+        if ($this->input->get('recurring')) {
             $this->app->get_table_data('recurring_invoices', [
                 'data'     => $data,
             ]);
@@ -416,9 +423,11 @@ class Invoices extends AdminController
     /* Get all invoice data used when user click on invoiec number in a datatable left side*/
     public function get_invoice_data_ajax($id)
     {
-        if (staff_cant('view', 'invoices')
+        if (
+            staff_cant('view', 'invoices')
             && staff_cant('view_own', 'invoices')
-            && get_option('allow_staff_view_invoices_assigned') == '0') {
+            && get_option('allow_staff_view_invoices_assigned') == '0'
+        ) {
             echo _l('access_denied');
             die;
         }
@@ -491,9 +500,9 @@ class Invoices extends AdminController
         $total_credits_applied = 0;
         foreach ($this->input->post('amount') as $credit_id => $amount) {
             $success = $this->credit_notes_model->apply_credits($credit_id, [
-            'invoice_id' => $invoice_id,
-            'amount'     => $amount,
-        ]);
+                'invoice_id' => $invoice_id,
+                'amount'     => $amount,
+            ]);
             if ($success) {
                 $total_credits_applied++;
             }
@@ -573,7 +582,6 @@ class Invoices extends AdminController
                 false,
                 $statementData
             );
-            
         } catch (Exception $e) {
             $message = $e->getMessage();
             echo $message;
@@ -740,5 +748,87 @@ class Invoices extends AdminController
                 echo $duedate;
             }
         }
+    }
+
+    public function send_invoice_whatsapp()
+    {
+        $invoice_id = $this->input->post('invoice_id');
+        if (!$invoice_id) {
+            echo json_encode(['success' => false, 'message' => 'Invoice ID missing']);
+            return;
+        }
+
+        // Admin default tables
+        $optionsTable = 'tbloptions';
+        $invoiceTable = 'tblinvoices';
+        $clientsTable = 'tblclients';
+
+        // WhatsApp config
+        $opts = $this->db->select('name,value')->get($optionsTable)->result_array();
+        $config = array_column($opts, 'value', 'name');
+
+        if (empty($config['greenapi_instance_id']) || empty($config['greenapi_token'])) {
+            echo json_encode(['success' => false, 'message' => 'WhatsApp configuration missing']);
+            return;
+        }
+
+        $instance_id = $config['greenapi_instance_id'];
+        $api_token   = $config['greenapi_token'];
+
+        // Invoice get
+        $invoice = $this->db->where('id', $invoice_id)->get($invoiceTable)->row();
+        if (!$invoice) {
+            echo json_encode(['success' => false, 'message' => 'Invoice not found']);
+            return;
+        }
+
+        // Client get
+        $client = $this->db->where('userid', $invoice->clientid)->get($clientsTable)->row();
+        if (!$client || empty($client->phonenumber)) {
+            echo json_encode(['success' => false, 'message' => 'Client not found or phone missing']);
+            return;
+        }
+
+        $client_number = $client->phonenumber;
+
+        // WhatsApp check
+        $urlCheck = "https://api.green-api.com/waInstance{$instance_id}/checkWhatsapp/{$api_token}";
+        $response = $this->curl_post($urlCheck, ['phoneNumber' => $client_number]);
+
+        if (empty($response['existsWhatsapp'])) {
+            echo json_encode(['success' => false, 'message' => 'Client is not using WhatsApp']);
+            return;
+        }
+
+        // Prepare message
+        $pdf_link = site_url('invoices/pdf/' . $invoice->id . '?output_type=I');
+        $message = "Dear Customer, your invoice #{$invoice->id} is ready. Download: {$pdf_link}";
+
+        // Send WhatsApp
+        $urlSend = "https://api.green-api.com/waInstance{$instance_id}/sendMessage/{$api_token}";
+        $res = $this->curl_post($urlSend, [
+            'chatId' => "{$client_number}@c.us",
+            'message' => $message
+        ]);
+
+        if ($res && isset($res['sent']) && $res['sent'] == true) {
+            echo json_encode(['success' => true, 'message' => 'Invoice sent successfully']);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Failed to send invoice']);
+        }
+    }
+
+    private function curl_post($url, $data)
+    {
+        $ch = curl_init($url);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+            CURLOPT_POSTFIELDS => json_encode($data)
+        ]);
+        $res = curl_exec($ch);
+        curl_close($ch);
+        return json_decode($res, true);
     }
 }
