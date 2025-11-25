@@ -12,7 +12,7 @@ function register_whatsapp_tab($tabs)
 
     // Extract slug from URL (e.g. citrus/jfswimming/ps)
     $slug = null;
-    if (preg_match('#citrus/([^/]+)/ps#', $current_url, $matches)) {
+    if (preg_match('#citrus\.mu/([^/]+)/ps#', $current_url, $matches)) {
         $slug = $matches[1];
     }
 

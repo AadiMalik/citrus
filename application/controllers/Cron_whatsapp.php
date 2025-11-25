@@ -5,9 +5,23 @@ class Cron_whatsapp extends CI_Controller
 {
     public function index()
     {
+        $this->log("...Whatsapp cronjob start....");
         $this->load->database();
 
-        $companies = $this->db->get_where('tblperfex_saas_companies', ['auto_invoice_whatsapp' => 1])->result();
+       $companies = $this->db->get('tblperfex_saas_companies')->result();
+        
+        foreach ($companies as $key => $company) {
+            $metadata = json_decode($company->metadata, true);
+            // double decode if needed
+            if (is_string($metadata)) $metadata = json_decode($metadata, true);
+        
+            $auto_invoice_whatsapp = isset($metadata['auto_invoice_whatsapp']) ? (int)$metadata['auto_invoice_whatsapp'] : 0;
+        
+            if ($auto_invoice_whatsapp !== 1) {
+                unset($companies[$key]); // remove companies with auto_invoice_whatsapp off
+            }
+        }
+         
 
         foreach ($companies as $company) {
             $prefix = $company->slug; // e.g. jfswimming
@@ -16,7 +30,16 @@ class Cron_whatsapp extends CI_Controller
             $clientsTable = $prefix . '_tblclients';
 
             // Load WhatsApp configuration
-            $opts = $this->db->select('name, value')->get($optionsTable)->result_array();
+            if (!$this->db->table_exists($optionsTable)) {
+    $this->log("Table $optionsTable does not exist for {$company->slug}");
+    continue;
+}
+$opts = $this->db->select('name, value')->get($optionsTable)->result_array();
+$this->log("Options Table Data: " . print_r($opts, true));
+            if (!$this->db->table_exists($optionsTable)) {
+    $this->log("Table $optionsTable does not exist for {$company->name}");
+    continue;
+}
             $config = array_column($opts, 'value', 'name');
 
             if (empty($config['greenapi_instance_id']) || empty($config['greenapi_token'])) {

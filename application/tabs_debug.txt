@@ -1,0 +1,65 @@
+2025-11-20 01:38:53 - URL: https://citrus.mu/jfswimming/ps/admin/settings | Slug: 
+2025-11-20 01:39:10 - URL: https://citrus.mu/admin/settings?group=saas | Slug: 
+2025-11-20 01:39:38 - URL: https://citrus.mu/admin/settings | Slug: 
+2025-11-20 01:39:39 - URL: https://citrus.mu/admin/settings?group=saas | Slug: 
+2025-11-20 01:41:03 - URL: https://citrus.mu/admin/settings?group=saas | Slug: 
+2025-11-20 01:41:10 - URL: https://citrus.mu/admin/settings?group=general | Slug: 
+2025-11-20 01:41:16 - URL: https://citrus.mu/jfswimming/ps/admin/settings | Slug: 
+2025-11-20 01:47:32 - URL: https://citrus.mu/jfswimming/ps/admin/settings | Slug: 
+2025-11-20 01:47:52 - URL: https://citrus.mu/admin/settings?group=general | Slug: 
+2025-11-20 01:48:49 - URL: https://citrus.mu/jfswimming/ps/admin/settings | Slug: 
+2025-11-20 01:52:46 - URL: https://citrus.mu/jfswimming/ps/admin/settings?group=company | Slug: 
+2025-11-20 01:53:41 - URL: https://citrus.mu/jfswimming/ps/admin/settings?group=company | Slug: 
+2025-11-20 01:54:05 - URL: https://citrus.mu/jfswimming/ps/admin/settings | Slug: 
+2025-11-20 01:54:48 - URL: https://citrus.mu/jfswimming/ps/admin/settings | Slug: 
+2025-11-20 02:00:38 - URL: https://citrus.mu/jfswimming/ps/admin/settings | Slug: 
+2025-11-20 02:01:30 - URL: https://citrus.mu/jfswimming/ps/admin/settings | Slug: 
+2025-11-20 02:05:28 - URL: https://citrus.mu/jfswimming/ps/admin/settings | Slug: jfswimming
+2025-11-20 02:05:28 - Slug: jfswimming | auto_invoice_whatsapp: 1
+2025-11-20 02:05:33 - URL: https://citrus.mu/jfswimming/ps/admin/settings?group=whatsapp | Slug: jfswimming
+2025-11-20 02:05:33 - Slug: jfswimming | auto_invoice_whatsapp: 1
+2025-11-20 02:07:08 - URL: https://citrus.mu/jfswimming/ps/admin/settings?group=whatsapp | Slug: jfswimming
+2025-11-20 02:07:08 - Slug: jfswimming | auto_invoice_whatsapp: 1
+2025-11-20 02:07:19 - URL: https://citrus.mu/jfswimming/ps/admin/settings | Slug: jfswimming
+2025-11-20 02:07:19 - Slug: jfswimming | auto_invoice_whatsapp: 1
+2025-11-20 02:09:25 - URL: https://citrus.mu/jfswimming/ps/admin/settings | Slug: jfswimming
+2025-11-20 02:09:25 - Slug: jfswimming | auto_invoice_whatsapp: 1
+2025-11-20 02:09:53 - URL: https://citrus.mu/jfswimming/ps/admin/settings | Slug: jfswimming
+2025-11-20 02:09:53 - Slug: jfswimming | auto_invoice_whatsapp: 0
+2025-11-20 02:10:27 - URL: https://citrus.mu/jfswimming/ps/admin/settings | Slug: jfswimming
+2025-11-20 02:10:27 - Slug: jfswimming | auto_invoice_whatsapp: 1
+2025-11-20 02:10:31 - URL: https://citrus.mu/jfswimming/ps/admin/settings?group=whatsapp | Slug: jfswimming
+2025-11-20 02:10:31 - Slug: jfswimming | auto_invoice_whatsapp: 1
+2025-11-20 02:10:48 - URL: https://citrus.mu/jfswimming/ps/admin/settings?group=whatsapp | Slug: jfswimming
+2025-11-20 02:10:48 - Slug: jfswimming | auto_invoice_whatsapp: 1
+2025-11-25 10:57:43 - URL: https://citrus.mu/les/ps/admin/settings | Slug: les
+2025-11-25 10:57:43 - Slug: les | auto_invoice_whatsapp: 0
+2025-11-25 10:57:51 - URL: https://citrus.mu/les/ps/admin/settings?group=company | Slug: les
+2025-11-25 10:57:51 - Slug: les | auto_invoice_whatsapp: 0
+2025-11-25 10:58:06 - URL: https://citrus.mu/les/ps/admin/settings?group=sales | Slug: les
+2025-11-25 10:58:06 - Slug: les | auto_invoice_whatsapp: 0
+2025-11-25 10:58:28 - URL: https://citrus.mu/les/ps/admin/settings?group=misc | Slug: les
+2025-11-25 10:58:28 - Slug: les | auto_invoice_whatsapp: 0
+2025-11-25 10:58:43 - URL: https://citrus.mu/les/ps/admin/settings?group=clients | Slug: les
+2025-11-25 10:58:43 - Slug: les | auto_invoice_whatsapp: 0
+2025-11-25 10:59:02 - URL: https://citrus.mu/les/ps/admin/settings?group=general | Slug: les
+2025-11-25 10:59:02 - Slug: les | auto_invoice_whatsapp: 0
+2025-11-25 11:05:07 - URL: https://citrus.mu/admin/settings | Slug: 
+2025-11-25 11:05:08 - URL: https://citrus.mu/admin/settings?group=saas | Slug: 
+2025-11-25 11:05:34 - URL: https://citrus.mu/admin/settings?group=sales | Slug: 
+2025-11-25 11:15:41 - URL: https://citrus.mu/les/ps/admin/settings | Slug: les
+2025-11-25 11:15:41 - Slug: les | auto_invoice_whatsapp: 0
+2025-11-25 11:15:46 - URL: https://citrus.mu/les/ps/admin/settings?group=company | Slug: les
+2025-11-25 11:15:46 - Slug: les | auto_invoice_whatsapp: 0
+2025-11-25 11:35:12 - URL: https://citrus.mu/les/ps/admin/settings | Slug: les
+2025-11-25 11:35:12 - Slug: les | auto_invoice_whatsapp: 0
+2025-11-25 11:35:18 - URL: https://citrus.mu/les/ps/admin/settings?group=sales | Slug: les
+2025-11-25 11:35:18 - Slug: les | auto_invoice_whatsapp: 0
+2025-11-25 11:35:35 - URL: https://citrus.mu/les/ps/admin/settings?group=sales&tab=invoice | Slug: les
+2025-11-25 11:35:35 - Slug: les | auto_invoice_whatsapp: 0
+2025-11-25 11:36:29 - URL: https://citrus.mu/les/ps/admin/settings | Slug: les
+2025-11-25 11:36:29 - Slug: les | auto_invoice_whatsapp: 0
+2025-11-25 11:36:34 - URL: https://citrus.mu/les/ps/admin/settings?group=sales | Slug: les
+2025-11-25 11:36:34 - Slug: les | auto_invoice_whatsapp: 0
+2025-11-25 12:25:57 - URL: https://citrus.mu/jfswimming/ps/admin/settings | Slug: jfswimming
+2025-11-25 12:25:57 - Slug: jfswimming | auto_invoice_whatsapp: 1
