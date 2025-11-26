@@ -85,7 +85,7 @@ class Invoice extends ClientsController
 
     public function send_invoice_whatsapp()
     {
-        // URL segment se slug (e.g., /jfswimming/ps/invoices/send)
+        // URL segment se slug (e.g., /jfswimming/ps/invoices/send_invoice_whatsapp)
         $slug = $this->uri->segment(1);
 
         // Invoice ID POST se

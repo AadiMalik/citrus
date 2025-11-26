@@ -528,28 +528,34 @@
             e.preventDefault();
             var invoiceId = $(this).data('invoice-id');
 
-            // Get current slug from URL (first segment after base)
             var pathArray = window.location.pathname.split('/');
-            var slug = pathArray[1]; // e.g., 'jfswimming'
+            var slug = pathArray[1];
             var postUrl = "/" + slug + "/invoices/send_invoice_whatsapp";
 
-            // CSRF token (CodeIgniter default)
-            var csrfName = '<?php echo $this->security->get_csrf_token_name(); ?>';
-            var csrfHash = '<?php echo $this->security->get_csrf_hash(); ?>';
+            // Get CSRF from meta tags
+            var csrfName = $('meta[name="csrf_token_name"]').attr('content');
+            var csrfHash = $('meta[name="csrf_token_hash"]').attr('content');
 
-            if (confirm("<?php echo 'Are you sure you want to send this invoice via WhatsApp?'; ?>")) {
-                var postData = {
-                    invoice_id: invoiceId
-                };
-                postData[csrfName] = csrfHash;
+            if (confirm("Are you sure you want to send this invoice via WhatsApp?")) {
 
-                $.post(postUrl, postData, function(response) {
-                    alert(response.message || (response.success ? "Invoice sent successfully" : "Failed to send invoice"));
-                }, 'json');
+                $.ajax({
+                    url: postUrl,
+                    type: "POST",
+                    data: {
+                        invoice_id: invoiceId
+                    },
+                    beforeSend: function(xhr) {
+                        xhr.setRequestHeader(csrfName, csrfHash); // Important for CLIENT area
+                    },
+                    success: function(response) {
+                        response = JSON.parse(response);
+                        alert(response.message);
+                    }
+                });
+
             }
         });
     });
 </script>
-
 
 <?php hooks()->do_action('after_invoice_preview_template_rendered', $invoice); ?>
