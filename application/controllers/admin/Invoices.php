@@ -866,7 +866,7 @@ class Invoices extends AdminController
         $result = json_decode($response, true);
 
         // test karne ke liye
-        dd($result);
+        // dd($result);
 
         return isset($result['existsWhatsapp']) && $result['existsWhatsapp'] === true;
     }
