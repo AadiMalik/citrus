@@ -750,24 +750,43 @@ class Invoices extends AdminController
         }
     }
 
-    public function send_invoice_whatsapp()
+    public function send_invoice_whatsapp($id)
     {
-        $invoice_id = $this->input->post('invoice_id');
+        // Slug from URL
+        $base_url = rtrim(APP_BASE_URL_DEFAULT, '/');
+
+        // 2. Current full URL
+        $full_url = current_url();
+
+        // 3. Remove base URL
+        $path_after_base = str_replace($base_url . '/', '', $full_url);
+
+        // 4. First segment = slug
+        $segments = explode('/', trim($path_after_base, '/'));
+        $slug = $segments[0]; // jfswimming
+
+        // Invoice ID POST se
+        $invoice_id = $id;
+        $phone = $this->input->post('phone');
         if (!$invoice_id) {
             echo json_encode(['success' => false, 'message' => 'Invoice ID missing']);
             return;
         }
-
-        // Admin default tables
-        $optionsTable = 'tbloptions';
-        $invoiceTable = 'tblinvoices';
-        $clientsTable = 'tblclients';
+        if ($slug == 'admin') {
+            $optionsTable = 'tbloptions';
+            $invoiceTable = 'tblinvoices';
+            $clientsTable = 'tblclients';
+        } else {
+            $optionsTable = $slug . '_tbloptions';
+            $invoiceTable = $slug . '_tblinvoices';
+            $clientsTable = $slug . '_tblclients';
+        }
 
         // WhatsApp config
         $opts = $this->db->select('name,value')->get($optionsTable)->result_array();
         $config = array_column($opts, 'value', 'name');
 
-        if (empty($config['greenapi_instance_id']) || empty($config['greenapi_token'])) {
+        if (empty($config['greenapi_instance_id']) || empty($config['greenapi_instance_id']) || empty($config['greenapi_token'])) {
             echo json_encode(['success' => false, 'message' => 'WhatsApp configuration missing']);
             return;
         }
@@ -783,32 +802,43 @@ class Invoices extends AdminController
         }
 
         // Client get
-        $client = $this->db->where('userid', $invoice->clientid)->get($clientsTable)->row();
-        if (!$client || empty($client->phonenumber)) {
-            echo json_encode(['success' => false, 'message' => 'Client not found or phone missing']);
-            return;
-        }
+        // $client = $this->db->where('userid', $invoice->clientid)->get($clientsTable)->row();
+        // if (!$client || empty($client->phonenumber)) {
+        //     echo json_encode(['success' => false, 'message' => 'Client not found or phone missing']);
+        //     return;
+        // }
 
-        $client_number = $client->phonenumber;
+        $client_number = $phone;
 
         // WhatsApp check
-        $urlCheck = "https://api.green-api.com/waInstance{$instance_id}/checkWhatsapp/{$api_token}";
-        $response = $this->curl_post($urlCheck, ['phoneNumber' => $client_number]);
-
+        // $urlCheck = "https://api.green-api.com/waInstance{$instance_id}/checkWhatsapp/{$api_token}";
+        // $response = $this->curl_post($urlCheck, ['phoneNumber' => $client_number]);
+        $response = $this->isWhatsappNumberRegistered($instance_id, $api_token, $client_number);
+        dd($response);
         if (empty($response['existsWhatsapp'])) {
             echo json_encode(['success' => false, 'message' => 'Client is not using WhatsApp']);
             return;
         }
 
         // Prepare message
-        $pdf_link = site_url('invoices/pdf/' . $invoice->id . '?output_type=I');
-        $message = "Dear Customer, your invoice #{$invoice->id} is ready. Download: {$pdf_link}";
+        // $pdf_link = site_url('invoices/pdf/' . $invoice->id . '?output_type=I');
+        // $message = "Dear Customer, your invoice #{$invoice->id} is ready. Download: {$pdf_link}";
 
-        // Send WhatsApp
-        $urlSend = "https://api.green-api.com/waInstance{$instance_id}/sendMessage/{$api_token}";
-        $res = $this->curl_post($urlSend, [
+        // // Send WhatsApp
+        // $urlSend = "https://api.green-api.com/waInstance{$instance_id}/sendMessage/{$api_token}";
+        // $res = $this->curl_post($urlSend, [
+        //     'chatId' => "{$client_number}@c.us",
+        //     'message' => $message
+        // ]);
+        $pdf_link = site_url('invoices/pdf/' . $invoice->id . '?output_type=D'); // D = download
+
+        $urlSendFile = "https://api.green-api.com/waInstance{$instance_id}/sendFileByUrl/{$api_token}";
+
+        $res = $this->curl_post($urlSendFile, [
             'chatId' => "{$client_number}@c.us",
-            'message' => $message
+            'url'    => $pdf_link,
+            'filename' => "Invoice_{$invoice->id}.pdf",
+            'caption'  => "Dear Customer, your invoice #{$invoice->id}."
         ]);
 
         if ($res && isset($res['sent']) && $res['sent'] == true) {
@@ -817,7 +847,29 @@ class Invoices extends AdminController
             echo json_encode(['success' => false, 'message' => 'Failed to send invoice']);
         }
     }
+    private function isWhatsappNumberRegistered($instance_id, $token, $number)
+    {
+        $url = "https://api.green-api.com/waInstance$instance_id/checkWhatsapp/$token";
 
+        $data = [
+            'phoneNumber' => $number // correct param name
+        ];
+
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true); // POST request
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        $result = json_decode($response, true);
+
+        // test karne ke liye
+        dd($result);
+
+        return isset($result['existsWhatsapp']) && $result['existsWhatsapp'] === true;
+    }
     private function curl_post($url, $data)
     {
         $ch = curl_init($url);
@@ -830,5 +882,57 @@ class Invoices extends AdminController
         $res = curl_exec($ch);
         curl_close($ch);
         return json_decode($res, true);
+    }
+    public function get_invoice_whatsapp_data($id)
+    {
+        // Slug from URL
+        $base_url = rtrim(APP_BASE_URL_DEFAULT, '/');
+
+        // 2. Current full URL
+        $full_url = current_url();
+
+        // 3. Remove base URL
+        $path_after_base = str_replace($base_url . '/', '', $full_url);
+
+        // 4. First segment = slug
+        $segments = explode('/', trim($path_after_base, '/'));
+        $slug = $segments[0]; // jfswimming
+        // Slug-based tables
+        if ($slug == 'admin') {
+            $invoiceTable = 'tblinvoices';
+            $clientsTable = 'tblclients';
+        } else {
+            $invoiceTable = $slug . '_tblinvoices';
+            $clientsTable = $slug . '_tblclients';
+        }
+
+        // Get invoice from slug table
+        $invoice = $this->db->where('id', $id)->get($invoiceTable)->row();
+        if (!$invoice) {
+            echo json_encode(['phone' => '', 'preview' => 'Invoice not found']);
+            return;
+        }
+
+        // Get client from slug table
+        $client = $this->db->where('userid', $invoice->clientid)->get($clientsTable)->row();
+        if (!$client) {
+            echo json_encode(['phone' => '', 'preview' => 'Client not found']);
+            return;
+        }
+
+        $phone = $client->phonenumber;
+
+        // --- SLUG-BASED INVOICE VIEW URL ---
+        // Example: https://domain.com/jfswimming/invoice/123
+
+        // Prepare preview text
+        $preview  = "Invoice #{$invoice->id}\n";
+        $preview .= "Amount: {$invoice->total}\n";
+        $preview .= "View Invoice: Attachment\n";
+
+        echo json_encode([
+            "phone"   => $phone,
+            "preview" => $preview
+        ]);
     }
 }

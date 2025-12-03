@@ -1,4 +1,5 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed'); ?>
+<?php echo form_hidden($this->security->get_csrf_token_name(), $this->security->get_csrf_hash()); ?>
 <?php if ((credits_can_be_applied_to_invoice($invoice->status) && $credits_available > 0)) { ?>
     <div class="alert alert-warning mbot5">
         <?php echo e(_l('x_credits_available', app_format_money($credits_available, $customer_currency->name))); ?>
@@ -507,6 +508,7 @@
     </div>
 </div>
 <?php $this->load->view('admin/invoices/invoice_send_to_client'); ?>
+<?php $this->load->view('admin/invoices/invoice_send_to_whatsapp'); ?>
 <?php $this->load->view('admin/credit_notes/apply_invoice_credits'); ?>
 <?php $this->load->view('admin/credit_notes/invoice_create_credit_note_confirm'); ?>
 <script>
@@ -524,38 +526,51 @@
 </script>
 <script>
     $(document).ready(function() {
-        $('.invoice-send-to-whatsapp').on('click', function(e) {
+        var pathArray = window.location.pathname.split('/');
+        var slug = pathArray[1] || '';
+        // WhatsApp button click
+        $(".invoice-send-to-whatsapp").click(function(e) {
             e.preventDefault();
-            var invoiceId = $(this).data('invoice-id');
 
-            var pathArray = window.location.pathname.split('/');
-            var slug = pathArray[1];
-            var postUrl = "/" + slug + "/invoices/send_invoice_whatsapp";
+            let invoiceId = $(this).data("invoice-id");
 
-            // Get CSRF from meta tags
-            var csrfName = $('meta[name="csrf_token_name"]').attr('content');
-            var csrfHash = $('meta[name="csrf_token_hash"]').attr('content');
+            $.post("invoices/get_invoice_whatsapp_data/" + invoiceId, {
+                csrf_token_name: $("input[name=csrf_token_name]").val()
+            }, function(res) {
 
-            if (confirm("Are you sure you want to send this invoice via WhatsApp?")) {
+                $("#wa_invoice_id").val(invoiceId);
+                $("#wa_customer_number").val(res.phone);
+                $("#wa_message_preview").val(res.preview);
 
-                $.ajax({
-                    url: postUrl,
-                    type: "POST",
-                    data: {
-                        invoice_id: invoiceId
-                    },
-                    beforeSend: function(xhr) {
-                        xhr.setRequestHeader(csrfName, csrfHash); // Important for CLIENT area
-                    },
-                    success: function(response) {
-                        response = JSON.parse(response);
-                        alert(response.message);
-                    }
-                });
-
-            }
+                $("#whatsappSendModal").modal("show");
+            }, 'json');
         });
+
+
+        // Send WhatsApp from modal
+        $("#wa_send_btn").click(function() {
+
+            let id = $("#wa_invoice_id").val();
+            let number = $("#wa_customer_number").val();
+
+            $.post("invoices/send_invoice_whatsapp/" + id, {
+                phone: number,
+                csrf_token_name: $("input[name=csrf_token_name]").val()
+            }, function(res) {
+
+                if (res.success) {
+                    alert("Message Sent Successfully!");
+                    $("#whatsappSendModal").modal("hide");
+                } else {
+                    alert(res.message);
+                }
+
+            }, 'json');
+
+        });
+
     });
 </script>
+
 
 <?php hooks()->do_action('after_invoice_preview_template_rendered', $invoice); ?>

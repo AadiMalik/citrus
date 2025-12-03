@@ -8,17 +8,21 @@ hooks()->add_filter('settings_tabs', 'register_whatsapp_tab');
 function register_whatsapp_tab($tabs)
 {
     $CI = &get_instance();
-    $current_url = current_full_url();
+    // Slug from URL
+    $base_url = rtrim(APP_BASE_URL_DEFAULT, '/');
 
-    // Extract slug from URL (e.g. citrus/jfswimming/ps)
-    $slug = null;
-    if (preg_match('#citrus\.mu/([^/]+)/ps#', $current_url, $matches)) {
-        $slug = $matches[1];
-    }
+    // 2. Current full URL
+    $full_url = current_url();
 
+    // 3. Remove base URL
+    $path_after_base = str_replace($base_url . '/', '', $full_url);
+
+    // 4. First segment = slug
+    $segments = explode('/', trim($path_after_base, '/'));
+    $slug = $segments[0]; // jfswimming
     // Debugging
     file_put_contents(APPPATH . 'tabs_debug.txt',
-        date('Y-m-d H:i:s') . " - URL: $current_url | Slug: $slug\n",
+        date('Y-m-d H:i:s') . " - URL: $full_url | Slug: $slug\n",
         FILE_APPEND
     );
 
@@ -53,7 +57,6 @@ function register_whatsapp_tab($tabs)
         $auto_invoice_whatsapp = isset($decoded['auto_invoice_whatsapp'])
             ? (int)$decoded['auto_invoice_whatsapp']
             : 0;
-
         file_put_contents(APPPATH . 'tabs_debug.txt',
             date('Y-m-d H:i:s') . " - Slug: $slug | auto_invoice_whatsapp: {$auto_invoice_whatsapp}\n",
             FILE_APPEND

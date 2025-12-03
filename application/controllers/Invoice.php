@@ -86,7 +86,9 @@ class Invoice extends ClientsController
     public function send_invoice_whatsapp()
     {
         // URL segment se slug (e.g., /jfswimming/ps/invoices/send_invoice_whatsapp)
-        $slug = $this->uri->segment(1);
+        $base_url = $this->config->item('base_url'); // http://localhost/citrus/jfswimming/ps/
+        $parts = explode('/', trim($base_url, '/'));
+        $slug = $parts[4];
 
         // Invoice ID POST se
         $invoice_id = $this->input->post('invoice_id');
@@ -167,5 +169,47 @@ class Invoice extends ClientsController
         $res = curl_exec($ch);
         curl_close($ch);
         return json_decode($res, true);
+    }
+
+    public function get_invoice_whatsapp_data($id)
+    {
+        // Slug from URL
+        $base_url = $this->config->item('base_url'); // http://localhost/citrus/jfswimming/ps/
+        $parts = explode('/', trim($base_url, '/'));
+        $slug = $parts[4];
+
+        // Slug-based tables
+        $invoiceTable = $slug . '_tblinvoices';
+        $clientsTable = $slug . '_tblclients';
+
+        // Get invoice from slug table
+        $invoice = $this->db->where('id', $id)->get($invoiceTable)->row();
+        if (!$invoice) {
+            echo json_encode(['phone' => '', 'preview' => 'Invoice not found']);
+            return;
+        }
+
+        // Get client from slug table
+        $client = $this->db->where('userid', $invoice->clientid)->get($clientsTable)->row();
+        if (!$client) {
+            echo json_encode(['phone' => '', 'preview' => 'Client not found']);
+            return;
+        }
+
+        $phone = $client->phonenumber;
+
+        // --- SLUG-BASED INVOICE VIEW URL ---
+        // Example: https://domain.com/jfswimming/invoice/123
+        $url = site_url($slug . '/invoice/' . $invoice->id);
+
+        // Prepare preview text
+        $preview  = "Invoice #{$invoice->id}\n";
+        $preview .= "Amount: {$invoice->total}\n";
+        $preview .= "View Invoice: {$url}";
+
+        echo json_encode([
+            "phone"   => $phone,
+            "preview" => $preview
+        ]);
     }
 }
