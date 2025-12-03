@@ -814,7 +814,7 @@ class Invoices extends AdminController
         // $urlCheck = "https://api.green-api.com/waInstance{$instance_id}/checkWhatsapp/{$api_token}";
         // $response = $this->curl_post($urlCheck, ['phoneNumber' => $client_number]);
         $response = $this->isWhatsappNumberRegistered($instance_id, $api_token, $client_number);
-        if (empty($response['existsWhatsapp'])) {
+        if (!$response) {
             echo json_encode(['success' => false, 'message' => 'Client is not using WhatsApp']);
             return;
         }
