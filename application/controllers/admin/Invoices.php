@@ -846,7 +846,7 @@ class Invoices extends AdminController
 
         // Save PDF
         file_put_contents($file_path, $pdf->Output('', 'S'));
-        $file_url = base_url('uploads/whatsapp_invoices/' . $file_name);
+        $file_url = 'https://citrus.mu/uploads/whatsapp_invoices/' . $file_name;
         $urlSend = "https://api.green-api.com/waInstance{$instance_id}/sendMessage/{$api_token}";
 
         $message = "Dear Customer, your invoice #{$invoice->id} is ready. Download here: $file_url";

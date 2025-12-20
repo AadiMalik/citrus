@@ -1,5 +1,15 @@
 AddDefaultCharset utf-8
 
+# Allow direct access to whatsapp PDFs
+<IfModule mod_rewrite.c>
+    RewriteCond %{REQUEST_URI} ^/uploads/whatsapp_invoices/.*\.pdf$ [NC]
+    RewriteRule ^ - [L]
+</IfModule>
+
+<FilesMatch "\.(pdf)$">
+    Require all granted
+</FilesMatch>
+
 <IfModule mod_rewrite.c>
 RewriteEngine on
 
