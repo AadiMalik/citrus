@@ -1,6 +1,10 @@
 <?php
-
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 defined('BASEPATH') or exit('No direct script access allowed');
+
+use GreenApi\RestApi\GreenApiClient;
 
 class Invoices extends AdminController
 {
@@ -795,7 +799,7 @@ class Invoices extends AdminController
         $api_token   = $config['greenapi_token'];
 
         // Invoice get
-        $invoice = $this->db->where('id', $invoice_id)->get($invoiceTable)->row();
+        $invoice = $this->invoices_model->get($invoice_id);
         if (!$invoice) {
             echo json_encode(['success' => false, 'message' => 'Invoice not found']);
             return;
@@ -829,23 +833,68 @@ class Invoices extends AdminController
         //     'chatId' => "{$client_number}@c.us",
         //     'message' => $message
         // ]);
-        $pdf_link = site_url('invoices/pdf/' . $invoice->id . '?output_type=D'); // D = download
+        // $pdf_link = site_url('invoices/pdf/' . $invoice->id . '?output_type=D'); // D = download
+        /* ================= PDF PATH ================= */
+        $pdf = invoice_pdf($invoice);
 
-        $urlSendFile = "https://api.green-api.com/waInstance{$instance_id}/sendFileByUrl/{$api_token}";
+        // Public folder path
+        $dir = FCPATH . 'uploads/whatsapp_invoices/';
+        if (!is_dir($dir)) mkdir($dir, 0777, true);
 
-        $res = $this->curl_post($urlSendFile, [
+        $file_name = "Invoice_{$invoice->id}.pdf";
+        $file_path = $dir . $file_name;
+
+        // Save PDF
+        file_put_contents($file_path, $pdf->Output('', 'S'));
+        $file_url = base_url('uploads/whatsapp_invoices/' . $file_name);
+        $urlSend = "https://api.green-api.com/waInstance{$instance_id}/sendMessage/{$api_token}";
+
+        $message = "Dear Customer, your invoice #{$invoice->id} is ready. Download here: $file_url";
+
+        $res = $this->curl_post($urlSend, [
             'chatId' => "{$client_number}@c.us",
-            'url'    => $pdf_link,
-            'filename' => "Invoice_{$invoice->id}.pdf",
-            'caption'  => "Dear Customer, your invoice #{$invoice->id}."
+            'message' => $message
         ]);
-
-        if ($res && isset($res['sent']) && $res['sent'] == true) {
-            echo json_encode(['success' => true, 'message' => 'Invoice sent successfully']);
+        if (!empty($res) && isset($res['idMessage'])) {
+            echo json_encode([
+                'success' => true,
+                'message' => 'Invoice PDF sent successfully',
+                'idMessage' => $res['idMessage']
+            ]);
         } else {
-            echo json_encode(['success' => false, 'message' => 'Failed to send invoice']);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Failed to send invoice',
+                'response' => $res
+            ]);
         }
     }
+    private function generate_invoice_pdf_file($invoice)
+    {
+        $dir = FCPATH . 'uploads/whatsapp_invoices/';
+        if (!is_dir($dir)) {
+            mkdir($dir, 0777, true);
+        }
+
+        $invoice_number = format_invoice_number($invoice->id);
+        $file_name = mb_strtoupper(slug_it($invoice_number)) . '.pdf';
+        $file_path = $dir . $file_name;
+
+        try {
+            $pdf = invoice_pdf($invoice);
+            $pdf->Output($file_path, 'F'); // F = save to file
+        } catch (Exception $e) {
+            log_activity('WhatsApp Invoice PDF Error: ' . $e->getMessage());
+            return false;
+        }
+
+        return [
+            'path' => $file_path,
+            'url'  => base_url('uploads/whatsapp_invoices/' . $file_name),
+            'name' => $file_name
+        ];
+    }
+
     private function isWhatsappNumberRegistered($instance_id, $token, $number)
     {
         $url = "https://api.green-api.com/waInstance$instance_id/checkWhatsapp/$token";
