@@ -610,7 +610,7 @@ class Invoices_model extends App_Model
         $new_invoice_data['number']   = get_option('next_invoice_number');
         $new_invoice_data['date']     = _d(date('Y-m-d'));
 
-        if ($_invoice->duedate && get_option('invoice_due_after') != 0) {
+        if (isset($_invoice->duedate) && $_invoice->duedate && get_option('invoice_due_after') != 0) {
             $new_invoice_data['duedate'] = _d(date('Y-m-d', strtotime('+' . get_option('invoice_due_after') . ' DAY', strtotime(date('Y-m-d')))));
         }
 
