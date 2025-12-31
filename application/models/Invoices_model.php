@@ -612,6 +612,8 @@ class Invoices_model extends App_Model
 
         if (isset($_invoice->duedate) && $_invoice->duedate && get_option('invoice_due_after') != 0) {
             $new_invoice_data['duedate'] = _d(date('Y-m-d', strtotime('+' . get_option('invoice_due_after') . ' DAY', strtotime(date('Y-m-d')))));
+        }else{
+            $new_invoice_data['duedate'] = null;
         }
 
         $new_invoice_data['save_as_draft']    = true;
